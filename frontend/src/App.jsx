@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import AddTransactionModal from "./components/AddTransactionModel";
 
 export default function App() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,9 +47,24 @@ export default function App() {
     return () => controller.abort();
   }, []);
 
+  function handleCreated(transaction) {
+    setTransactions((current) => [...current, transaction]);
+    setIsModalOpen(false)
+  }
+
   return (
     <main>
-      <h1>Transactions</h1>
+      <header className="page-header">
+        <h1>Transactions</h1>
+
+        <button
+          type="button"
+          disabled={loading || Boolean(error)}
+          onClick={() => setIsModalOpen(true)}
+        >
+          Add Transaction
+        </button>
+      </header>
 
       {loading && <p role="status">Loading transactions...</p>}
 
@@ -95,6 +112,12 @@ export default function App() {
             </tbody>
           </table>
         </div>
+      )}
+      {isModalOpen && (
+        <AddTransactionModal
+          onClose={() => setIsModalOpen(false)}
+          onCreated={handleCreated}
+        />
       )}
     </main>
   );
